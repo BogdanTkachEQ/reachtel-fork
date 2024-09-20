@@ -1,0 +1,41 @@
+Models\Entities\FixedWidthFieldSpecification:
+    type: entity
+    table: fixed_width_file_specification
+    id:
+        id:
+            type: integer
+            nullable: false
+            unsigned: true
+            id: true
+            column: id
+            generator:
+                strategy: AUTO
+
+    manyToOne:
+        fixedWidthFile:
+            targetEntity: Models\Entities\FixedWidthFile
+            joinColumn:
+                name: fixed_width_file_id
+                referencedColumnName: id
+    fields:
+        fieldName:
+            type: string
+            nullable: false
+            length: 50
+            fixed: false
+            comment: ''
+            column: column_name
+
+        startPosition:
+            type: integer
+            nullable: false
+            unsigned: true
+            column: start
+
+        length:
+            type: integer
+            nullable: false
+            unsigned: true
+            column: length
+
+    lifecycleCallbacks: {  }

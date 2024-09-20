@@ -1,0 +1,30 @@
+Models\Entities\Region:
+    type: entity
+    table: regions
+    id:
+        id:
+            type: integer
+            nullable: false
+            unsigned: true
+            id: true
+            column: id
+            generator:
+                strategy: AUTO
+
+    manyToOne:
+        country:
+            targetEntity: Models\Entities\Country
+            joinColumn:
+                name: country_id
+                referencedColumnName: id
+
+    fields:
+        name:
+            type: string
+            nullable: false
+            length: 30
+            fixed: false
+            comment: ''
+            column: name
+
+    lifecycleCallbacks: {  }

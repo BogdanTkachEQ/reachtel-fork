@@ -1,0 +1,107 @@
+exten => _X.,1,Set(CALLERID(num)=${cid})
+exten => _X.,n,Set(SIPcause=200)
+exten => _X.,n,Set(DIALSTATUS=FAILED)
+exten => _X.,n,Set(CDR(userfield)=${eventid})
+exten => _X.,n,ExecIf($[0${withholdcid}=1]?Set(CALLERID(name)=Anonymous))
+exten => _X.,n,ExecIf($[0${withholdcid}=1]?SIPAddHeader(P-Asserted-Identity: <tel:${CALLERID(num)}>)
+exten => _X.,n,ExecIf($[0${withholdcid}=1]?SIPAddHeader(Privacy: id))
+exten => _X.,n,Dial(${method}/${EXTEN},${ringtime},gb(set_handler^1(${CHANNEL}))U(ReachTEL-Answer^${campaignid}^${eventid}^${targetid}))
+exten => _X.,n,Set(SIPcause=${SHARED(SIPcause)})
+exten => _X.,n,Set(RANGOUT=${SHARED(RANGOUT)})
+exten => _X.,n,Hangup
+
+exten => t,1,Hangup
+
+exten => h,1,NoOp(DEBUG: EVENTID=${eventid} HANGUPCAUSE=${HANGUPCAUSE} DIALSTATUS=${DIALSTATUS} BILLSEC=${CDR(billsec)} DURATION=${CDR(duration)} DIALEDTIME=${DIALEDTIME} ANSWEREDTIME=${ANSWEREDTIME})
+exten => h,n,GotoIf($["${type}"!="wash"]?HANGUP_CAUSE_CONTINUE)
+exten => h,n,Log(WASH_DEBUG: EVENTID=${eventid} HANGUPCAUSE=${HANGUPCAUSE} DIALSTATUS=${DIALSTATUS} BILLSEC=${CDR(billsec)} DURATION=${CDR(duration)} DIALEDTIME=${DIALEDTIME} ANSWEREDTIME=${ANSWEREDTIME})
+exten => h,n(HANGUP_CAUSE_CONTINUE),Log(DEBUG,HANGUPCAUSE=${HANGUPCAUSE} PROVIDER=${provider} DESTINATION=${e164} SIPCAUSE=${SIPcause}))
+exten => h,n,ExecIf($[$["${HANGUPCAUSE}" != "0"] & $["${HANGUPCAUSE}" != "1"] & $["${HANGUPCAUSE}" != "16"] & $["${HANGUPCAUSE}" != "17"]]?Log(WARNING,HANGUPCAUSE=${HANGUPCAUSE} PROVIDER=${provider} DESTINATION=${e164} SIPCAUSE=${SIPcause}))
+exten => h,n,Goto(h-SIP-${SIPcause},1)
+;exten => h,n,Goto(h-CAUSE-${HANGUPCAUSE},1)
+
+; Now lets process the HANGUPCAUSE
+exten => _h-SIP-.,1,Goto(h-CAUSE-${HANGUPCAUSE},1)
+
+; Disconnected numbers
+exten => h-CAUSE-1,1,AGI(hagi://reachtel.com.au/call_results?value=DISCONNECTED)
+exten => h-CAUSE-1,n,AGI(hagi://reachtel.com.au/call_status?action=ABANDONED)
+exten => h-CAUSE-1,n,Hangup
+
+; No provider route
+exten => h-CAUSE-3,1,AGI(hagi://reachtel.com.au/call_results?value=CHANUNAVAIL)
+exten => h-CAUSE-3,n,AGI(hagi://reachtel.com.au/call_status?action=ERROR)
+exten => h-CAUSE-3,n,Hangup
+
+; No provider route
+exten => h-CAUSE-27,1,AGI(hagi://reachtel.com.au/call_results?value=CHANUNAVAIL)
+exten => h-CAUSE-27,n,AGI(hagi://reachtel.com.au/call_status?action=ERROR)
+exten => h-CAUSE-27,n,Hangup
+
+; Disconnected numbers - invalid number format
+exten => h-CAUSE-28,1,AGI(hagi://reachtel.com.au/call_results?value=DISCONNECTED)
+exten => h-CAUSE-28,n,AGI(hagi://reachtel.com.au/call_status?action=ABANDONED)
+exten => h-CAUSE-28,n,Hangup
+
+; Network failure
+exten => h-CAUSE-38,1,AGI(hagi://reachtel.com.au/call_results?value=CHANUNAVAIL)
+exten => h-CAUSE-38,n,AGI(hagi://reachtel.com.au/call_status?action=ERROR)
+exten => h-CAUSE-38,n,Hangup
+
+; REQUESTED_CHAN_UNAVAIL
+exten => h-CAUSE-44,1,AGI(hagi://reachtel.com.au/call_results?value=CHANUNAVAIL)
+exten => h-CAUSE-44,n,AGI(hagi://reachtel.com.au/call_status?action=ERROR)
+exten => h-CAUSE-44,n,Hangup
+
+; Cause 16
+exten => h-CAUSE-16,1,GotoIf($[$["${DIALSTATUS}"="ANSWER"]]?CONTINUE)
+exten => h-CAUSE-16,n,AGI(hagi://reachtel.com.au/call_results?value=${DIALSTATUS})
+exten => h-CAUSE-16,n(CONTINUE),Goto(h-${DIALSTATUS},1)
+
+;exten => h-CAUSE-16,1,GotoIf($[$["${DIALSTATUS}"="NOANSWER"] & $["${RANGOUT}"!="6"] & $[${CDR(duration)}<6]]?DISCONNECTED)
+;exten => h-CAUSE-16,n,AGI(hagi://reachtel.com.au/call_results?value=${DIALSTATUS})
+;exten => h-CAUSE-16,n,Goto(h-${DIALSTATUS},1)
+;exten => h-CAUSE-16,n(DISCONNECTED),Log(WARNING,WASH_TEST MORPHEUS BILLSEC=${CDR(billsec)} RANGOUT=${RANGOUT} ANSWEREDTIME=${ANSWEREDTIME} DIALEDTIME=${DIALEDTIME} DIALSTATUS=${DIALSTATUS} DESTINATION=${e164})
+;exten => h-CAUSE-16,n,AGI(hagi://reachtel.com.au/call_results?value=DISCONNECTED)
+;exten => h-CAUSE-16,n,AGI(hagi://reachtel.com.au/call_status?action=ABANDONED)
+;exten => h-CAUSE-16,n,Hangup
+;exten => h-CAUSE-16,n,Goto(h-${DIALSTATUS},1)
+
+; Every other unhandled hangup cause
+exten => _h-CAUSE.,1,GotoIf($[$["${DIALSTATUS}"="ANSWER"]]?CONTINUE)
+exten => _h-CAUSE.,n,AGI(hagi://reachtel.com.au/call_results?value=${DIALSTATUS})
+exten => _h-CAUSE.,n(CONTINUE),Goto(h-${DIALSTATUS},1)
+
+exten => h-CHANUNAVAIL,1,AGI(hagi://reachtel.com.au/call_status?action=ERROR)
+
+exten => h-BUSY,1,GotoIf($["${type}"!="wash"]?BUSY_SEND_CALL_STATUS)
+exten => h-BUSY,n,Set(ringoutlimit=2)
+exten => h-BUSY,n,Set(redialtimeout=1)
+exten => h-BUSY,n(BUSY_SEND_CALL_STATUS),AGI(hagi://reachtel.com.au/call_status?action=REATTEMPT&cause=RINGOUT)
+
+exten => h-CONGESTION,1,GotoIf($["${type}"!="wash"]?CONGESTION_SEND_CALL_STATUS)
+exten => h-CONGESTION,n,Set(ringoutlimit=2)
+exten => h-CONGESTION,n,Set(redialtimeout=2)
+exten => h-CONGESTION,n(CONGESTION_SEND_CALL_STATUS),AGI(hagi://reachtel.com.au/call_status?action=REATTEMPT&cause=RINGOUT)
+
+exten => h-CANCEL,1,GotoIf($["${type}"!="wash"]?CANCEL_SEND_CALL_STATUS)
+exten => h-CANCEL,n,Set(ringoutlimit=2)
+exten => h-CANCEL,n,Set(redialtimeout=1)
+exten => h-CANCEL,n(CANCEL_SEND_CALL_STATUS),AGI(hagi://reachtel.com.au/call_status?action=REATTEMPT&cause=RINGOUT)
+
+exten => h-NOANSWER,1,AGI(hagi://reachtel.com.au/call_status?action=REATTEMPT&cause=RINGOUT)
+exten => h-ANSWERED,1,NoOp(=CALL ANSWERED=)
+exten => h-ANSWER,1,NoOp(=CALL ANSWER=)
+exten => h-FAILED,1,AGI(hagi://reachtel.com.au/call_status?action=ERROR)
+
+exten => set_handler,1,Set(CHANNEL(hangup_handler_push)=ReachTEL-CallSpooler,outbound_handler,1(${ARG1}))
+exten => set_handler,n,Return()
+
+exten => outbound_handler,1,Set(HANGUPCAUSE_STRING=${HANGUPCAUSE_KEYS()}) ; If no hangup causes are available then its probably because it is a regular call and the call ended normally so we just return.
+exten => outbound_handler,n,ExecIf($["${HANGUPCAUSE_STRING}" = ""]?Return())
+exten => outbound_handler,n,NoOp(Got Channel ID ${HANGUPCAUSE_STRING} master ${ARG1} with Technology Cause Code ${HANGUPCAUSE(${HANGUPCAUSE_STRING},tech)}, Asterisk Cause Code ${HANGUPCAUSE(${HANGUPCAUSE_STRING},ast)})
+exten => outbound_handler,n,Set(SIPcause=${HANGUPCAUSE(${HANGUPCAUSE_STRING},tech):4:3})
+exten => outbound_handler,n,ExecIf($["${SIPcause}" = "200"]?Return())
+exten => outbound_handler,n,Set(SHARED(SIPcause,${ARG1})=${SIPcause})
+exten => outbound_handler,n,Set(SHARED(RANGOUT,${ARG1})=${CDR(duration)})
+exten => outbound_handler,n,Return()

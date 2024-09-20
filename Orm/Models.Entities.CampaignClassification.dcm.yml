@@ -1,0 +1,20 @@
+Models\Entities\CampaignClassification:
+    type: entity
+    table: campaign_classifications
+    id:
+        id:
+            type: integer
+            nullable: false
+            unsigned: true
+            id: true
+            column: id
+            generator:
+                strategy: AUTO
+
+    fields:
+        name:
+            type: campaign_classification
+            nullable: false
+            column: name
+
+    lifecycleCallbacks: {  }

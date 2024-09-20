@@ -1,0 +1,16 @@
+<?php
+/**
+ * @author phillip.berry@equifax.com
+ * @copyright ReachTel (ABN 40 133 677 933)
+ */
+
+namespace Services\Campaign\Classification;
+
+use MabeEnum\Enum;
+
+class CampaignClassificationEnum extends Enum
+{
+    const CAMPAIGN_SETTING_CLASSIFICATION_EXEMPT = CAMPAIGN_SETTING_CLASSIFICATION_EXEMPT;
+    const CAMPAIGN_SETTING_CLASSIFICATION_RESEARCH = CAMPAIGN_SETTING_CLASSIFICATION_RESEARCH;
+    const CAMPAIGN_SETTING_CLASSIFICATION_TELEMARKETING = CAMPAIGN_SETTING_CLASSIFICATION_TELEMARKETING;
+}

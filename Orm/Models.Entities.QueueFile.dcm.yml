@@ -1,0 +1,41 @@
+Models\Entities\QueueFile:
+    type: entity
+    table: queue_files
+    id:
+        id:
+            type: integer
+            nullable: false
+            unsigned: true
+            id: true
+            column: id
+            generator:
+                strategy: AUTO
+
+    manyToOne:
+        queueItem:
+            targetEntity: Models\Entities\QueueItem
+            joinColumn:
+                name: queue_id
+                referencedColumnName: id
+
+    fields:
+        queueId:
+            type: integer
+            column: queue_id
+            nullable: false
+        fileName:
+            type: string
+            column: filename
+            nullable: false
+        data:
+            type: blob
+            column: data
+            nullable: false
+        createdAt:
+            type: datetime
+            column: created_at
+            nullable: true
+
+
+
+    lifecycleCallbacks: {  }

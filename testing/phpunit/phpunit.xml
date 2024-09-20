@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:noNamespaceSchemaLocation="http://schema.phpunit.de/4.1/phpunit.xsd"
+	backupGlobals="false"
+	colors="true"
+	convertErrorsToExceptions="true"
+	convertNoticesToExceptions="true"
+	convertWarningsToExceptions="true"
+	processIsolation="false"
+	stopOnFailure="false"
+	syntaxCheck="true"
+	bootstrap="bootstrap.php"
+>
+    <php>
+        <ini name="date.timezone" value="Australia/Brisbane"/>
+    </php>
+    <testsuites>
+        <testsuite name="health">
+            <file>module/DatabaseTest.php</file>
+            <file>unit/AppConfigTest.php</file>
+            <file>unit/AppSavePathTest.php</file>
+            <file>unit/RunkitMockingTest.php</file>
+            <file>unit/YamlParserTest.php</file>
+            <file>unit/MethodAbstractionTest.php</file>
+            <file>module/MethodAbstractionTest.php</file>
+            <file>script/SyntaxScriptTest.php</file>
+            <file>script/SmsInboundScriptsTest.php</file>
+        </testsuite>
+        <testsuite name="phpcs">
+            <directory>phpcs</directory>
+        </testsuite>
+        <testsuite name="helper">
+            <directory suffix="UnitHelperTest.php">unit</directory>
+            <directory suffix="ModuleHelperTest.php">module</directory>
+        </testsuite>
+        <testsuite name="unit">
+            <directory suffix="UnitTest.php">unit</directory>
+        </testsuite>
+        <testsuite name="module">
+            <directory suffix="ModuleTest.php">module</directory>
+        </testsuite>
+        <testsuite name="module-no-remote-deps">
+            <directory suffix="ModuleTest.php">module</directory>
+            <exclude>module/ApiSmsModuleTest.php</exclude>
+        </testsuite>
+    </testsuites>
+    <filter>
+        <whitelist processUncoveredFilesFromWhitelist="true">
+            <exclude>
+                <directory>./../../bin</directory>
+                <directory>./../../daemons</directory>
+                <directory>./../../lib</directory>
+                <directory>./../../vendor</directory>
+                <directory>./../../phpmyadmin</directory>
+                <directory>./../../scripts</directory>
+                <directory>./../../templates</directory>
+                <file>./../../api_gui.php</file>
+                <directory>./../standards_phpcs</directory>
+                <directory>./../sql</directory>
+                <directory>./../lib</directory>
+                <directory suffix="Test.php">./../phpunit</directory>
+                <directory suffix="Trait.php">./../phpunit</directory>
+                <file>./bootstrap.php</file>
+                <file>./AbstractPhpunitTest.php</file>
+                <directory>./coverage</directory>
+            </exclude>
+            <directory suffix=".php">./../../</directory>
+            <directory suffix="Helper.php">./module</directory>
+        </whitelist>
+    </filter>
+</phpunit>

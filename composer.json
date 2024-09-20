@@ -1,0 +1,71 @@
+{
+    "name": "reachtel/morpheus",
+    "description": "Morpheus dependencies",
+    "type": "project",
+    "license": "proprietary",
+    "minimum-stability": "stable",
+    "config": {
+        "platform": {
+            "php": "5.6.4"
+        }
+    },
+    "require": {
+        "adodb/adodb-php": "v5.20.13",
+        "devsdmf/annotations": "1.0.0",
+        "pear/pear-core-minimal": "v1.10.6",
+        "giggsey/libphonenumber-for-php": "^8.11",
+        "pear/mail": "1.4.1",
+        "pear/mail_mime": "1.10.2",
+        "pear/mail_mime-decode": "1.5.5.2",
+        "pear/net_smtp": "1.8.1",
+        "phpoffice/phpexcel": "1.8.1",
+        "smarty/smarty": "3.1.33",
+        "symfony/yaml": "^3.4",
+        "symfony/finder": "^3.4",
+        "symfony/options-resolver": "v3.4.20",
+        "symfony/expression-language": "^3.4",
+        "inacho/php-credit-card-validator": "^1.0",
+        "equifax/cyberark-wrapper": "2.0.0",
+        "doctrine/migrations": "^1.5",
+        "guzzle/guzzle": "^3.9",
+        "marc-mabe/php-enum": "^3.1",
+        "symfony/http-foundation": "^3.4",
+        "doctrine/orm": "2.5.14",
+        "symfony/dependency-injection": "^3.4",
+        "symfony/config": "^3.4",
+        "parsecsv/php-parsecsv": "^1.2",
+        "sonata-project/google-authenticator": "^1.1"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^5.7",
+        "squizlabs/php_codesniffer": "^2.9",
+        "fabpot-graveyard/yaml": "@dev",
+        "phake/phake": "^2.3",
+        "fzaninotto/faker": "^1.9"
+    },
+    "autoload": {
+        "psr-4": {
+            "Services\\": "Services/",
+            "Models\\": "Models/",
+            "Morpheus\\Schema\\": "Schema/"
+        }
+    },
+    "repositories": {
+        "fabpot-graveyard/yaml": {
+            "type": "package",
+            "package": {
+                "name": "fabpot-graveyard/yaml",
+                "version": "master",
+                "source": {
+                    "url": "https://github.com/fabpot-graveyard/yaml.git",
+                    "type": "git",
+                    "reference": "master"
+                }
+            }
+        },
+        "equifax/cyberark-wrapper": {
+            "type": "vcs",
+            "url": "ssh://git@bitbucket.corp.dmz/rea/cyberark-wrapper.git"
+        }
+    }
+}

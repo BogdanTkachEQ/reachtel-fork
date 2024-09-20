@@ -1,0 +1,10 @@
+header.php
+.DS_Store
+phpmyadmin
+
+# Eclipse IDE
+.buildpath
+.project
+.settings/
+vendor
+.idea

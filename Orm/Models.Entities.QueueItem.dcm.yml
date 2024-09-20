@@ -1,0 +1,87 @@
+Models\Entities\QueueItem:
+    repositoryClass: Services\Repository\QueueItemRepository
+    type: entity
+    table: queue
+    id:
+        id:
+            type: integer
+            nullable: false
+            unsigned: true
+            id: true
+            column: id
+            generator:
+                strategy: AUTO
+
+    oneToMany:
+        queueFiles:
+            targetEntity: Models\Entities\QueueFile
+            mappedBy: queueItem
+
+    fields:
+        processType:
+            type: process_type
+            nullable: false
+            length: 255
+            fixed: false
+            column: process_type
+        campaignId:
+            type: integer
+            column: campaign_id
+            nullable: false
+        userId:
+            type: integer
+            column: user_id
+            nullable: false
+        priority:
+            type: integer
+            column: priority
+            nullable: false
+            options:
+                default: 0
+        isRunning:
+            type: boolean
+            column: is_running
+            nullable: false
+            options:
+                default: 0
+        hasRun:
+            type: boolean
+            column: has_run
+            nullable: false
+            options:
+                default: 0
+        ranAt:
+            type: datetime
+            column: ran_at
+            nullable: true
+        createdAt:
+            type: datetime
+            column: created_at
+            nullable: true
+        completedAt:
+            type: datetime
+            column: completed_at
+            nullable: true
+        returnCode:
+            type: integer
+            column: return_code
+            nullable: true
+        returnText:
+            type: text
+            column: return_text
+            nullable: true
+        data:
+            type: text
+            column: data
+            nullable: true
+        canRun:
+            type: boolean
+            column: can_run
+            nullable: false
+            options:
+                default: 0
+        version:
+            type: integer
+            version: true
+
+    lifecycleCallbacks: {  }

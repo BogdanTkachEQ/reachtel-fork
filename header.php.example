@@ -1,0 +1,90 @@
+<?php
+putenv("AIM_TEMP_FOLDER=/newTemp");
+require_once(__DIR__ . '/api_cyberark.php');
+
+/////// test environment
+@define("APP_ENVIRONMENT", 'test');
+
+/////// smarty templates path
+define('TE_TEMPLATE_DIRECTORY', __DIR__ . '/templates');
+
+/////// settings to PHP constants
+define("SETTINGS_ID", 99);
+
+/////// cyberark
+define('CYBERARK_RETRY_INTERVAL_MS', 1500);
+define('CYBERARK_RETRY_MAX', 4);
+
+/////// database
+define('DB_SINGLE_CONNECTION', 1);
+define('DB_CONNECTION_NO_SSL', 1);
+define('DB_MYSQL_WRITE_HOST', 'localhost');
+define('DB_MYSQL_PLOTTER_DATABASE', 'greypages');
+define('DB_MYSQL_PLOTTER_WRITE_USERNAME', 'plotter_write');
+
+// This is only used when DB_SINGLE_CONNECTION is turned on but we need to force read from read only host. Not a clean
+// solution but will help when reading from slave db is useful when it is master-slave set up.
+define('DB_MYSQL_READ_HOST_FORCED', 'localhost');
+
+define('DB_MYSQL_MIGRATION_USERNAME', '');
+define('DB_MYSQL_MIGRATION_PASSWORD', '__SET__PASSWORD__');
+
+// testing PHPUnit
+if (defined('APP_ENVIRONMENT') && APP_ENVIRONMENT == 'phpunit') {
+	define('DB_MYSQL_DATABASE', 'morpheus_phpunit');
+	define('DB_MYSQL_WRITE_USERNAME', 'morpheus_phpunit');
+	define('DB_MYSQL_WRITE_PASSWORD', '__SET__PASSWORD__');
+} else {
+    $morpheus_password = api_cyberark_get_password('APP_D_Morpheus', 'aad_Morpheus', 'morpheus-test_morpheus-test');
+    $plotter_write_password = api_cyberark_get_password('APP_D_Plotter', 'aad_Plotter', 'greypages_plotter_write');
+    $sinch_api_token = api_cyberark_get_password('APP_D_Morpheus', 'aad_Morpheus', 'morpheus_sinch_api_token');
+    $azure_subscription_key = api_cyberark_get_password('APP_D_Morpheus', 'aad_Morpheus', 'morpheus_azure_subscription_key');
+
+    if (
+        !$morpheus_password ||
+        !$plotter_write_password ||
+        !$sinch_api_token ||
+        !$azure_subscription_key
+    ) {
+        die('Something went wrong.');
+    }
+
+    define('DB_MYSQL_WRITE_PASSWORD', $morpheus_password->getContent());
+    define('DB_MYSQL_PLOTTER_WRITE_PASSWORD', $plotter_write_password->getContent());
+    define('SINCH_API_TOKEN', $sinch_api_token);
+    define('AZURE_SUBSCRIPTION_KEY', $azure_subscription_key);
+
+    define('DB_MYSQL_DATABASE', 'morpheus');
+    define('DB_MYSQL_WRITE_USERNAME', $morpheus_password->getUsername());
+}
+
+/////// files path
+$path = '/mnt/morpheus';
+define('BASE_LOCATION', $path);
+define('READ_LOCATION', $path);
+define('SAVE_LOCATION', $path);
+unset($path);
+
+const TECHNICAL_ADMIN_USERIDS = [2];
+const SELCOMM_ACCOUNT_CODE_PREFIX = 'RETL';
+
+const SINCH_SERVICE_PLAN_ID = 'Reachtel_test';
+const SINCH_HOST_NAME = 'https://au1.sms.api.sinch.com/xms/v1';
+
+const YABBR_API_HOST_NAME = 'https://api.yabbr.io/2019-01-23';
+const YABBR_API_KEY = '';
+// Turn this on and off to control sending sms outside of the Yabbr network. Set to false on production.
+const YABBR_API_SIMULATED = true;
+const YABBR_SMS_RECEIPT_USER = 'test';
+const YABBR_SMS_RECEIPT_PWD = 'test';
+
+// This is an optional parameter if we need to receive delivery report to a different endpoint to what has been set with Sinch by default
+const SINCH_DELIVERY_REPORT_OVERRIDE_URL = 'https://api.sydbh-dev.reachtel.com.au/webhook?name=sinchsmsreceipt';
+const SERVER_TIME_ZONE = 'Australia/Sydney';
+
+const APP_HOST_NAME = 'morpheus.reachtel.com.au';
+
+define("EMAIL_ABUSE", "ANZ.Consumer.Risk.Tribe@equifax.com");
+define("EMAIL_DEFAULT_DOMAIN", "ANZ.Consumer.Risk.Tribe@equifax.com");
+define("EMAIL_DEFAULT_FROM", "Consumer Risk <ANZ.Consumer.Risk.Tribe@equifax.com>");
+define("EMAIL_HOST", "mail.equifax.com");

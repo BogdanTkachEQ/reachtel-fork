@@ -1,0 +1,22 @@
+tableName: "veda15_import"
+sourceTableName: "veda15"
+databaseName: "greypages"
+batchSize: 10
+insertLogIntervalRows: 10000
+sanityMinimumRows: 1000
+maxCsvLineLength: 2000
+columnMap:
+  "ProspectID": "prospectid"
+  "Firstname": "initial"
+  "Surname": "surname"
+  "Address1": "street"
+  "Suburb": "suburb"
+  "State": "state"
+  "PostCode": "postcode"
+  "X_Coord": "long"
+  "Y_Coord": "lat"
+  "PhoneNumberIndiv": "phone1"
+  "PhoneNumberHH": "phone2"
+  "PhoneNumberMobile": "mobile1"
+  "Gender": "gender"
+  "AgeBand": "agebracket"

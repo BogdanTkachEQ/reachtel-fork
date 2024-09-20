@@ -1,0 +1,4 @@
+name: Morpheus Migrations
+migrations_namespace: Morpheus\Schema\Migrations
+table_name: doctrine_migration_versions
+migrations_directory: Schema/Migrations

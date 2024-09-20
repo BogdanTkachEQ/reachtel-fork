@@ -1,0 +1,73 @@
+#!/usr/bin/php
+<?php
+
+// comment this line if you want to use thats script ...
+die("! THIS IS A DEV ENV SCRIPT ONLY !\n");
+// ... and uncomment this line
+// require_once("Morpheus/api.php");
+
+$campaign_id = null;
+while (!$campaign_id) {
+    fwrite(STDOUT, "Campaign id ? ");
+    $campaign_id = (int) trim(readline());
+    if (api_campaigns_checkidexists($campaign_id)) {
+        break;
+    }
+
+    fwrite(STDERR, "\033[0;31mCampaign id={$campaign_id} does not exists!\033[0m\n");
+    $campaign_id = null;
+}
+
+$campaign = api_campaigns_setting_getall($campaign_id);
+fwrite(STDOUT, "Found \033[1;37m{$campaign['type']}\033[0m campaign \033[1;37m{$campaign['name']}\033[0m\n");
+fwrite(STDOUT, "How many targets to generate ? ");
+if (($nbTargets = (int) trim(readline())) > 0) {
+    $data = json_decode(file_get_contents(__DIR__ . '/data.json'), true);
+
+    for ($x = 1; $x <= $nbTargets; $x++) {
+        $targetkey = uniqid("c{$campaign_id}_t{$x}");
+        $target_id = api_targets_add_single(
+            $campaign_id,
+            '04' . rand(10000000, 99999999),
+            $targetkey
+        );
+        if (!$target_id) {
+            fwrite(STDERR, "\033[0;31m[FAILED]\033[0m\n");
+            exit;
+        }
+
+        // extra garget data
+        $place = $data['places'][array_rand($data['places'])];
+        api_targets_add_extradata_multiple(
+            $campaign_id,
+            $targetkey,
+            [
+                'firstname' => $data['firstname'][array_rand($data['firstname'])],
+                'lastname' => $data['lastname'][array_rand($data['lastname'])],
+                'postcode' => $place[0],
+                'city' => $place[1],
+                'state' => $place[2],
+                'age' => rand(18, 90),
+            ]
+        );
+
+        // random status
+        $status = $data['target']['status'][array_rand($data['target']['status'])];
+        $sql = "UPDATE targets
+                SET status = ?, nextattempt = ?, reattempts = ?, ringouts = ?, errors = ?
+                WHERE `targetid` = ?";
+        $rs = api_db_query_write($sql, $aqswde = [
+            $status,
+            ('REATTEMPT' == $status ? date('Y-m-d H:i:s', strtotime('+' . rand(1, 3) . ' hours')) : null), // nextattempt
+            ('REATTEMPT' == $status || ('READY' != $status && rand(0, 5)) ? rand(0, 3) : 0), // reattempts
+            ('REATTEMPT' == $status || ('READY' != $status && rand(0, 5)) ? rand(0, 4) : 0), // ringouts
+            ('ABANDONED' == $status ? rand(1, 3) : 0), // errors
+            $target_id
+        ]);
+        if (!$rs) {
+            fwrite(STDERR, "\033[0;31m[FAILED]\033[0m\n");
+            exit;
+        }
+    }
+    fwrite(STDOUT, "[OK]\n");
+}

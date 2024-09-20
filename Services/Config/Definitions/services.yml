@@ -1,0 +1,206 @@
+parameters:
+  path_to_orm: '%project_root%Orm'
+
+services:
+    Services\Doctrine\EntityManagerAccessor:
+        arguments: ['%path_to_orm%', '%is_dev%']
+
+    Doctrine\ORM\EntityManager:
+        factory: ['@Services\Doctrine\EntityManagerAccessor', 'getEntityManager']
+
+    Services\Utils\PublicHolidayChecker:
+
+    Services\Validators\TimingPeriodValidator:
+        shared: false
+
+    Services\Validators\RecurringTimesTimingPeriodValidator:
+        arguments:
+            - '@Services\Validators\TimingPeriodValidator'
+        shared: false
+
+    Services\Validators\SpecificTimesTimingPeriodValidator:
+        arguments:
+            - '@Services\Validators\TimingPeriodValidator'
+        shared: false
+
+    Services\Validators\CampaignTimingPeriodSettingsValidator:
+        arguments:
+            - '@Services\Validators\RecurringTimesTimingPeriodValidator'
+            - '@Services\Validators\SpecificTimesTimingPeriodValidator'
+        shared: false
+
+    Services\Repository\CampaignTimingRuleRepository:
+        factory: ['@Doctrine\ORM\EntityManager', 'getRepository']
+        arguments:
+            - Models\Entities\CampaignTimingRule
+
+    Services\Campaign\CampaignTimingAccessor:
+        arguments:
+            - '@Services\Repository\CampaignTimingRuleRepository'
+
+    Services\Validators\CampaignTimingRulesSettingsValidator:
+        arguments:
+            - '@Services\Campaign\CampaignTimingAccessor'
+            - '@Services\Validators\CampaignTimingPeriodSettingsValidator'
+        shared: false
+
+    Services\Validators\CampaignPublicHolidaySettingsValidator:
+        arguments:
+            - '@Services\Utils\PublicHolidayChecker'
+        shared: false
+
+    Services\Validators\CampaignCallerIdValidator:
+        shared: false
+
+    Services\Campaign\Validators\Disclaimers\TimingDisclaimerProvider:
+        arguments:
+            - '@Services\Campaign\CampaignTimingAccessor'
+
+    Services\Campaign\Validators\Disclaimers\CallerIdDisclaimerProvider:
+
+    Services\Campaign\CampaignNextAttemptService:
+        arguments:
+            - '@Services\Campaign\Validators\CampaignTimingValidationService'
+            - '@Services\Campaign\CampaignTimingAccessor'
+        shared: false
+
+    Services\Campaign\Validators\CampaignTimingValidationService:
+        arguments:
+            - '@Services\Validators\CampaignPublicHolidaySettingsValidator'
+            - '@Services\Validators\CampaignTimingRulesSettingsValidator'
+            - '@Services\Campaign\Validators\Disclaimers\TimingDisclaimerProvider'
+        shared: false
+
+    Services\Campaign\Validators\CampaignCallerIdValidationService:
+        arguments:
+            - '@Services\Validators\CampaignCallerIdValidator'
+            - '@Services\Campaign\Validators\Disclaimers\CallerIdDisclaimerProvider'
+        shared: false
+
+    Services\Campaign\Validators\RecurringTimePickerValidationService:
+        arguments:
+            - '@Services\Validators\RecurringTimesTimingPeriodValidator'
+            - '@Services\Campaign\Builders\RecurringTimesDirector'
+            - '@Services\Campaign\CampaignTimingAccessor'
+        shared: false
+
+    Services\Campaign\Validators\SpecificTimePickerValidationService:
+        arguments:
+            - '@Services\Campaign\Builders\SpecificTimesDirector'
+            - '@Services\Validators\SpecificTimesTimingPeriodValidator'
+            - '@Services\Campaign\CampaignTimingAccessor'
+            - '@Services\Validators\CampaignPublicHolidaySettingsValidator'
+        shared: false
+
+    Services\Campaign\Validators\CompositeCampaignValidationService:
+        calls:
+            - [add, ['@Services\Campaign\Validators\CampaignTimingValidationService']]
+            - [add, ['@Services\Campaign\Validators\CampaignCallerIdValidationService']]
+        shared: false
+
+    Services\Campaign\CampaignActivationPermissionService:
+        arguments:
+            - '@Services\Campaign\Builders\CampaignSettingsDirector'
+            - '@Services\Campaign\Validators\CompositeCampaignValidationService'
+        shared: false
+
+    Services\Campaign\Builders\SpecificTimeBuilder:
+
+    Services\Campaign\Builders\SpecificTimesDirector:
+        arguments:
+            - '@Services\Campaign\Builders\SpecificTimeBuilder'
+
+    Services\Campaign\Builders\RecurringTimeBuilder:
+
+    Services\Campaign\Builders\RecurringTimesDirector:
+        arguments:
+            - '@Services\Campaign\Builders\RecurringTimeBuilder'
+
+    Services\Campaign\Builders\CampaignSettingsBuilder:
+
+    Services\Campaign\Builders\CampaignSettingsDirector:
+        arguments:
+            - '@Services\Campaign\Builders\CampaignSettingsBuilder'
+            - '@Services\Campaign\Builders\SpecificTimesDirector'
+            - '@Services\Campaign\Builders\RecurringTimesDirector'
+            - '@Doctrine\ORM\EntityManager'
+    Services\Queue\QueueManager:
+        arguments:
+            - '@Doctrine\ORM\EntityManager'
+
+    Services\Campaign\Limits\SendRate\Factory\SendRateCalculatorFactory:
+
+    Services\Autoload\PublicHolidayLineExclusionRule:
+        arguments:
+            - '@Services\Utils\PublicHolidayChecker'
+
+    Services\Reports\RowDataModifierFactory:
+
+    Services\Utils\TagTemplateParser:
+
+    Services\Reports\RowDataModifierTemplateParser:
+        arguments:
+            - '@Services\Reports\RowDataModifierFactory'
+            - '@Services\Utils\TagTemplateParser'
+        shared: false
+
+    Services\Rules\RulesEngine:
+        shared: false
+
+    Services\Reports\ArrayRulesEngineDecorator:
+        arguments:
+            - '@Services\Rules\RulesEngine'
+        shared: false
+
+    Services\Rules\ArrayRules\ArrayDataRuleBuilderFactory:
+
+    Services\Reports\Adapters\ArrayRuleBuilderAdapterFactory:
+
+    Services\Reports\FilterInputTagTemplateParser:
+        arguments:
+            - '@Services\Utils\TagTemplateParser'
+            - '@Services\Rules\ArrayRules\ArrayDataRuleBuilderFactory'
+            - '@Services\Reports\Adapters\ArrayRuleBuilderAdapterFactory'
+
+    Services\Reports\Builders\FilterRulesEngineBuilder:
+        arguments:
+            - '@Services\Reports\FilterInputTagTemplateParser'
+            - '@Services\Reports\ArrayRulesEngineDecorator'
+
+    Services\Validators\Factory\CampaignTargetDataValidatorFactory:
+
+    Services\File\CSV\CSVFactory:
+
+    Services\File\CSV\BasicCsv:
+        factory: ['Services\File\CSV\CSVFactory', 'createBasicCSV']
+
+    Services\Reports\CsvArrayToFileConverter:
+        arguments:
+            - '@Services\File\CSV\BasicCsv'
+
+    Services\Authenticators\GoogleAuthUserService:
+
+    Google\Authenticator\GoogleAuthenticator:
+
+    Services\Authenticators\GoogleMultiFactorAuthenticator:
+        arguments:
+            - '@Google\Authenticator\GoogleAuthenticator'
+            - '@Services\Authenticators\GoogleAuthUserService'
+
+    Services\Rest\MorpheusHttpClient:
+
+    Services\Suppliers\Yabbr\ApiActions:
+
+    Services\Suppliers\Yabbr\Client\RestClient:
+        arguments:
+            - '@Services\Rest\MorpheusHttpClient'
+            - '@Services\Suppliers\Yabbr\ApiActions'
+            - !php/const:YABBR_API_HOST_NAME
+            - !php/const:YABBR_API_KEY
+        shared: false
+
+    Services\Suppliers\Yabbr\PhoneNumberValidationService:
+        arguments:
+            - '@Services\Suppliers\Yabbr\Client\RestClient'
+
+    Services\Suppliers\Interfaces\PhoneNumberValidationServiceInterface: '@Services\Suppliers\Yabbr\PhoneNumberValidationService'

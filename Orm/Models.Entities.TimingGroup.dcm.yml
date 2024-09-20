@@ -1,0 +1,40 @@
+Models\Entities\TimingGroup:
+    type: entity
+    table: timing_groups
+    id:
+        id:
+            type: integer
+            nullable: false
+            unsigned: true
+            id: true
+            column: id
+            generator:
+                strategy: AUTO
+
+    oneToMany:
+        timingPeriods:
+            targetEntity: Models\Entities\TimingPeriod
+            mappedBy: timingGroup
+
+    manyToMany:
+        regions:
+            targetEntity: Models\Entities\Region
+            joinTable:
+                name: timing_group_regions
+                joinColumns:
+                    timing_group_id:
+                        referencedColumnName: id
+                inverseJoinColumns:
+                    region_id:
+                        referencedColumnName: id
+
+    fields:
+        name:
+            type: string
+            nullable: false
+            length: 25
+            fixed: false
+            comment: ''
+            column: name
+
+    lifecycleCallbacks: {  }

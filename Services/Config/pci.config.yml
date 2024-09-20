@@ -1,0 +1,72 @@
+# based on
+#  - https://www.regular-expressions.info/creditcard.html
+#  - https://gist.github.com/michaelkeevildown/9096cd3aac9029c4e6e05588448a8841
+#  - https://github.com/inacho/php-credit-card-validator/blob/master/src/CreditCard.php#L15
+#  - https://github.com/pear/Validate_Finance_CreditCard/blob/master/Validate/Finance/CreditCard.php#L161
+cards:
+  amex:
+    pattern: '/^3[47][0-9]{13}$/'
+    length: [15]
+    luhn: true
+  dankort:
+    pattern: /^5019/
+    length: [16]
+    luhn: true
+  dinersclub:
+    pattern: '/^3(0[0-5][0-9]{11}|[68][0-9]{12})$/'
+    length: [14]
+    luhn: true
+  discover:
+    pattern: '/^6(?:011|5[0-9]{2})[0-9]{12}$/'
+    length: [16]
+    luhn: true
+  forbrugsforeningen:
+    pattern: /^600/
+    length: [16]
+    luhn: true
+  jcb:
+    pattern: '/^(35[0-9]{14}|(2131|1800)[0-9]{11})/'
+    length: [16]
+    luhn: true
+  maestro:
+    pattern: '/^(5(018|0[23]|[68])|6(39|7))/'
+    length: [12, 13, 14, 15, 16, 17, 18, 19]
+    luhn: true
+  mastercard:
+    pattern: '/^(?:5[1-5][0-9]{2}|222[1-9]|22[3-9][0-9]|2[3-6][0-9]{2}|27[01][0-9]|2720)[0-9]{12}$/'
+    length: [16]
+    luhn: true
+  unionpay:
+    pattern: /^(62|88)/
+    length: [16, 17, 18, 19]
+    luhn: false
+  visa:
+    pattern: /^4/
+    length: [13, 16]
+    luhn: true
+email: > # 2 new lines = 1 email new line
+  Hi,
+  
+  
+  On %date% %timezone% time, you sent us a file for processing.
+  
+  
+  As per ReachTEL's data retention policy, we have assessed the file's contents.
+  
+  Upon this assessment, we believe that the file contains personal credit card information and we have masked this data as per the data retention policy.
+  
+  
+  If these details are not required for us to provide you with our service, then we recommend that you modify your file structure and content in future to not send us such information.
+  
+  
+  Please take the time to review the following campaign(s) data:
+  
+  %pci_data%
+  
+  If you believe you have been sent this email in error or have any questions please contact us at 1800 42 77 06 or support@reachtel.com.au
+
+
+  Regards,
+  
+  
+  The ReachTEL Team

@@ -1,0 +1,17 @@
+# mandatory conf files check
+confs:
+  - header.php
+  - composer.json
+  - composer.lock
+
+# post execute
+post:
+  # morpheus URL depending on environment (using https to avoid a 302 redirection)
+  # @FIXME DEV URL DOES NOT NEED PROXY
+  morpheus url: '[ "$BAMBOO_ENV" == "prod" ] && echo "https://morpheus.reachtel.com.au" || echo "https://morpheus.reachtel.com.au"'
+  # http status code check
+  status code: curl --max-time 10 -s -o /dev/null -w %{http_code} $morpheus_url
+  check status: '[ "$status_code" == "200" ] && echo "OK" || exit 1'
+  # safety check as this script includes api.php
+  restart daemons: curl --max-time 10 -s -o /dev/null -w %{http_code} 'https://api.reachtel.com.au/webhooks/codedeploy.php?bde1e894932b82599003159ebb2c13e0=1'
+  check restart daemons: '[ "$restart_daemons" == "200" ] && echo "Daemons restarted successfully!" || exit 1'

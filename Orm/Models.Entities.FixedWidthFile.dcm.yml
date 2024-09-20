@@ -1,0 +1,29 @@
+Models\Entities\FixedWidthFile:
+    repositoryClass: Services\Repository\FixedWidthFileRepository
+    type: entity
+    table: fixed_width_file_identifier
+    id:
+        id:
+            type: integer
+            nullable: false
+            unsigned: true
+            id: true
+            column: id
+            generator:
+                strategy: AUTO
+
+    oneToMany:
+        specifications:
+            targetEntity: Models\Entities\FixedWidthFieldSpecification
+            mappedBy: fixedWidthFile
+
+    fields:
+        name:
+            type: string
+            nullable: false
+            length: 30
+            fixed: false
+            comment: ''
+            column: name
+
+    lifecycleCallbacks: {  }

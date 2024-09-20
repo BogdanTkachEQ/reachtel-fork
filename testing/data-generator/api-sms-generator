@@ -1,0 +1,182 @@
+#!/usr/bin/php
+<?php
+
+// comment this line if you want to use thats script ...
+die("! THIS IS A DEV ENV SCRIPT ONLY !\n");
+// ... and uncomment this line
+// require_once("Morpheus/api.php");
+
+
+$user_id = null;
+while (!$user_id) {
+    fwrite(STDOUT, "User id ? ");
+    $user_id = (int) trim(readline());
+    if (api_users_checkidexists($user_id)) {
+        break;
+    }
+
+    fwrite(STDERR, "\033[0;31mUser id={$user_id} does not exists!\033[0m\n");
+    $user_id = null;
+}
+
+fwrite(STDOUT, "How many out/received SMS to generate ? ");
+if (($nbSms = (int) trim(readline())) > 0) {
+    // fill sms_out and sms_out, sms_out_status and sms_received
+    for ($x = 1; $x <= $nbSms; $x++) {
+        $sql = "INSERT INTO `sms_out` (
+                    `userid`,
+                    `timestamp`,
+                    `billingtype`,
+                    `supplier`,
+                    `supplierid`,
+                    `from`,
+                    `destination`,
+                    `message`
+                )
+			    VALUES (?, ?, ?, ?, ?, ?, ?, ?);";
+        $timestamp = date(
+            'Y-m-d H:i:s',
+            strtotime(rand(0, 5) ? (rand(1, 300) . 'days ago') :  'now')
+        );
+        $rs = api_db_query_write($sql, [
+            $user_id,
+            $timestamp,
+            'smsaumobile', // billingtype
+            rand(1, 127), // supplier
+            ($supplierId = 2), // supplierid
+            ($from = '04' . rand(pow(10, 7), pow(10, 8) - 1)), // from
+            ($to = '04' . rand(pow(10, 7), pow(10, 8) - 1)), // destination
+            ($message = "{$from} sent a message to {$to}." . bin2hex(openssl_random_pseudo_bytes(rand(10, 200)))) // content
+        ]);
+
+        if (!$rs) {
+            fwrite(STDERR, "\033[0;31m[FAILED]\033[0m\n");
+            exit;
+        }
+
+        $messageunits = 1;
+        if(($len = strlen($message)) > 160) {
+            $messageunits = (fmod($len/153, 1) != 0) ? ceil($len/153) : ($len/153);
+        }
+        $id = api_db_lastid();
+
+        if (rand(0,1)) {
+            $statuses = ['created'];
+            if (rand(0,3)) {
+                $statuses[] = 'sent';
+                $statuses[] = (rand(0,1) ? 'delivered' : 'undelivered');
+            } elseif (rand(0,1)) {
+                $statuses[] = (rand(0,1) ? 'unknown' : 'rejected');
+            }
+            foreach($statuses as $status) {
+                api_sms_out_status($supplierId, $status, time(), $id);
+            }
+
+            // if sms has been delivered, we can generate random replies
+            if (rand(0,2) && in_array('delivered', $statuses)) {
+                $sql = "INSERT INTO `sms_received` (`timestamp`, `received`, `sms_account`, `from`, `contents`)
+                        VALUES (NOW(), NOW(), ?, ?, ?);";
+                $rs = api_db_query_write($sql, [
+                    $user_id, // sms_account
+                    $to, // from
+                    "Reply from {$to}", // contents
+                ]);
+
+                if (!$rs) {
+                    fwrite(STDERR, "\033[0;31m[FAILED]\033[0m\n");
+                    exit;
+                }
+
+            }
+        }
+
+    }
+
+    // fill sms_out and sms_sent, sms_sent_status and sms_api_mapping
+    for ($x = 1; $x <= $nbSms; $x++) {
+        $id = api_sms_send_log(
+            ($supplierId = 2),
+            rand(10, 10000),
+            $user_id,
+            ($to = '04' . rand(pow(10, 7), pow(10, 8) - 1)),
+            ($message = "{$from} sent a message to {$to}." . bin2hex(openssl_random_pseudo_bytes(rand(10, 200)))), // content
+            rand(1, 127)
+        );
+
+        if (!$rs) {
+            fwrite(STDERR, "\033[0;31m[FAILED]\033[0m\n");
+            exit;
+        }
+
+        $timestamp = date(
+            'Y-m-d H:i:s',
+            strtotime(rand(0, 5) ? (rand(1, 300) . 'days ago') :  'now')
+        );
+
+        $messageunits = 1;
+        if(($len = strlen($message)) > 160) {
+            $messageunits = (fmod($len/153, 1) != 0) ? ceil($len/153) : ($len/153);
+        }
+
+
+        api_db_query_write(
+            "UPDATE `sms_sent`
+             SET `timestamp` = ?
+             WHERE `sms_sent`.`eventid` = ?;",
+            [$timestamp, $id]
+        );
+
+        $sql = "INSERT INTO `sms_api_mapping` (
+                    `timestamp`,
+                    `messageunits`,
+                    `billingtype`,
+                    `userid`,
+                    `rid`,
+                    `uid`
+                )
+                VALUES (?, ?, ?, ?, ?, ?);";
+        $rs = api_db_query_write($sql, [
+            $timestamp,
+            $messageunits, // messageunits
+            'smsaumobile', // billingtype
+            $user_id, // userid
+            $id, // rid
+            $id, // uid
+        ]);
+
+        if (!$rs) {
+            fwrite(STDERR, "\033[0;31m[FAILED]\033[0m\n");
+            exit;
+        }
+
+        if (rand(0,3)) {
+            if (rand(0,2)) {
+                $statuses = [
+                    (rand(0,2) ? 'DELIVERED' : 'UNDELIVERED'),
+                    'SUBMITTED'
+                ];
+            } else {
+                $statuses = [(rand(0,1) ? 'EXPIRED' : 'REJECTED')];
+            }
+            foreach($statuses as $i => $status) {
+                $sql = "INSERT INTO `sms_status` (
+                            `timestamp`,
+                            `status`,
+                            `code`,
+                            `supplierdate`,
+                            `eventid`
+                        )
+                        VALUES (?, ?, ?, ?, ?);";
+                $rs = api_db_query_write($sql, [
+                    $timestamp,
+                    $status,
+                    "CODE{$i}", // billingtype
+                    $timestamp, // userid
+                    rand(100, 99999)
+                ]);
+            }
+        }
+
+    }
+    fwrite(STDOUT, "[OK]\n");
+}

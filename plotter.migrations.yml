@@ -1,0 +1,4 @@
+name: Plotter Migrations
+migrations_namespace: Morpheus\Schema\Plotter\Migrations
+table_name: doctrine_migration_versions
+migrations_directory: Schema/Plotter/Migrations

@@ -1,0 +1,26 @@
+# Once we have all types as constants, we might add a config reader class that will
+# have a map of type keys in config to those constants
+blacklisted_items:
+  CAMPAIGNS:
+    - heartbeattimestamp
+    - lastsend
+
+  USERS:
+    - autherrors
+    - lastauth
+    - apirequest.get.throttleperiod
+    - apirequest.get.lastrequest
+    - apirequest.post.throttleperiod
+    - apirequest.post.lastrequest
+
+  VOICESUPPLIER:
+    - lastcall
+
+  SMSSUPPLIER:
+    - lastsms
+
+  HLRSUPPLIER:
+    - lasthlr
+
+  CRON:
+    - lastrunoutput

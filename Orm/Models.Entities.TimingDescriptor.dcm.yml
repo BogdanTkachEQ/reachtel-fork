@@ -1,0 +1,23 @@
+Models\Entities\TimingDescriptor:
+    type: entity
+    table: timing_descriptors
+    id:
+        id:
+            type: integer
+            nullable: false
+            unsigned: true
+            id: true
+            column: id
+            generator:
+                strategy: AUTO
+
+    fields:
+        name:
+            type: string
+            nullable: false
+            length: 30
+            fixed: false
+            comment: ''
+            column: name
+
+    lifecycleCallbacks: {  }

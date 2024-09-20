@@ -1,0 +1,50 @@
+#!/usr/bin/php
+<?php
+
+// comment this line if you want to use thats script ...
+die("! THIS IS A DEV ENV SCRIPT ONLY !\n");
+// ... and uncomment this line
+// require_once("Morpheus/api.php");
+
+$campaign_id = null;
+while (!$campaign_id) {
+    fwrite(STDOUT, "Campaign id ? ");
+    $campaign_id = (int) trim(readline());
+    if (api_campaigns_checkidexists($campaign_id)) {
+        break;
+    }
+
+    fwrite(STDERR, "\033[0;31mCampaign id={$campaign_id} does not exists!\033[0m\n");
+    $campaign_id = null;
+}
+
+$campaign = api_campaigns_setting_getall($campaign_id);
+fwrite(STDOUT, "Found \033[1;37m{$campaign['type']}\033[0m campaign \033[1;37m{$campaign['name']}\033[0m\n");
+if (!$targets = api_targets_listall($campaign_id)) {
+    fwrite(STDERR, "\033[0;31mCampaign id={$campaign_id} does not have targets!\033[0m\n");
+    exit;
+}
+
+fwrite(STDOUT, "How many response and merge data to generate ? ");
+if (($nb_response_data = (int) trim(readline())) > 0) {
+    foreach ($targets as $target_id => $destination) {
+        for ($x = 1; $x <= $nb_response_data; $x++) {
+            for ($y = 1; $y <= rand(1, 3); $y++) {
+                $response_id = api_data_responses_add(
+                    (int) $campaign_id,
+                    (int) "{$campaign_id}{$target_id}{$x}{$y}", // event id
+                    (int) $target_id,
+                    $destination,
+                    "action_{$x}",
+                    "value {$x}.{$y}"
+                );
+                if (!$response_id) {
+                    fwrite(STDERR, "\033[0;31m[FAILED]\033[0m\n");
+                    exit;
+                }
+            }
+        }
+    }
+    fwrite(STDOUT, "[OK]\n");
+}
+

@@ -1,0 +1,107 @@
+#!/usr/bin/php
+<?php
+
+// comment this line if you want to use thats script ...
+die("! THIS IS A DEV ENV SCRIPT ONLY !\n");
+// ... and uncomment this line
+// require_once("Morpheus/api.php");
+
+fwrite(STDOUT, "Creating a new campaign:\n");
+$campaign = [];
+$map = [
+    'name' => [],
+    'type' => ['values' => ['phone', 'sms', 'wash', 'email']],
+    'owner' =>  [
+        'text' => 'id',
+        'optional' => true,
+        'values' => function ($value) {
+            return api_users_checkidexists((int) $value);
+        },
+    ],
+    'groupowner' => [
+        'text' => 'id',
+        'optional' => true,
+        'values' => function ($value) {
+            return api_groups_checkidexists((int) $value);
+        },
+    ],
+    'region' => ['optional' => true, 'values' => ['AU', 'NZ', 'SG']],
+    'timezone' => [
+        'text' => 'e.g.: Australia/Brisbane',
+        'optional' => true,
+        'values' => function ($value) {
+            try {
+                new DateTimeZone($value);
+            } catch (Exception $e) {
+                return false;
+            }
+
+            return true;
+        },
+    ],
+    'donotcontactdestination' =>[
+        'optional' => true,
+        'values' => 1
+    ],
+    'groupowner' =>[
+        'optional' => true,
+        'values' => function ($value) {
+            return api_groups_checkidexists((int) $value);
+        },
+    ],
+];
+
+foreach($map as $key => $item) {
+    $campaign[$key] = null;
+    while (!$campaign[$key]) {
+        $text = $key;
+        $optional = isset($item['optional']) && $item['optional'] ? true : false;
+        $values = isset($item['values']) && $item['values'] ? $item['values'] : null;
+
+        if (!$optional) {
+            $text .= "*";
+        }
+        if (isset($item['text']) && $item['text']) {
+            $text .= " {$item['text']}";
+        }
+
+        if (is_array($values)) {
+            $text .= ' ('.implode(', ', (array) $values).')';
+        }
+
+        fwrite(STDOUT, "    {$text}: ");
+        $campaign[$key] = trim(readline());
+
+        if (!$campaign[$key]) {
+            if ($optional) break;
+            fwrite(STDERR, "    \033[0;31mRequired!\033[0m\n");
+            continue;
+        }
+
+        if ($values) {
+            if (is_array($values) && !in_array($campaign[$key], $values)) {
+                $campaign[$key] = null;
+                fwrite(STDERR, "    \033[0;31mWrong value!\033[0m\n");
+            } elseif (is_callable($values) && !$values($campaign[$key])) {
+                $campaign[$key] = null;
+                fwrite(STDERR, "    \033[0;31m{$key} does not exists!\033[0m\n");
+            }
+        }
+    }
+}
+
+fwrite(STDOUT, "\nCreating campaign... ");
+if (!$campaign_id = api_campaigns_add($campaign['name'], $campaign['type'])) {
+    fwrite(STDERR, "\033[0;31m[FAILED]\033[0m\n");
+    exit;
+}
+
+foreach($campaign as $k => $v) {
+    if (!api_campaigns_setting_set($campaign_id, $k, $v)) {
+        fwrite(STDERR, "\033[0;31m[FAILED] Can't save setting '{$k}'\033[0m\n");
+        exit;
+    }
+}
+fwrite(STDOUT, "[OK]\n");
+fwrite(STDOUT, "\033[0;32mCampaign id = {$campaign_id}\033[0m\n");
+

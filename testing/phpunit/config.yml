@@ -1,0 +1,191 @@
+### LOGS ###
+log:
+  colors:
+    bold: '1;37'
+    success: '1;32'
+    error: '1;31'
+    error_bar: '1;41'
+    title: '1;34'
+
+### RUNKIT ###
+runkit:
+  backup_prefix: __mock_func_backup_
+
+### PHPCS ###
+phpcs:
+  phpcs_bin_path: '/vendor/bin/phpcs'
+  standards_path: '/testing/lib/standards_phpcs/ReachTEL'
+
+### DATABASE ###
+database:
+  name: morpheus_phpunit
+  # Reload database on specific events:
+  #  - start: Reload database at the beginning of each test suite
+  #  - passed: On test success (PHPUnit_Runner_BaseTestRunner::STATUS_PASSED)
+  #  - error: A fatal error occurs (PHPUnit_Runner_BaseTestRunner::STATUS_ERROR)
+  #  - failure: A test failure occurs (PHPUnit_Runner_BaseTestRunner::STATUS_FAILURE)
+  #  - warning: A warning occurs (PHPUnit_Runner_BaseTestRunner::STATUS_WARNING)
+  reload_database_events: ['start']
+  dump_path: testing/sql/morpheus_phpunit.sql
+
+### MODULE TEST ###
+module:
+  test_files_map:
+    png:
+      data: 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAAA3NCSVQICAjb4U/gAAAADElEQVQImWNgYGAAAAAEAAGjChXjAAAAAElFTkSuQmCC'
+      nb_bytes: 84
+    jpg:
+      data: '/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDABALDA4MChAODQ4SERATGCgaGBYWGDEjJR0oOjM9PDkzODdASFxOQERXRTc4UG1RV19iZ2hnPk1xeXBkeFxlZ2P/wAALCAABAAEBAREA/8QAFAABAAAAAAAAAAAAAAAAAAAAB//EABQQAQAAAAAAAAAAAAAAAAAAAAD/2gAIAQEAAD8AP3//2Q=='
+      nb_bytes: 160
+    jpeg:
+      data: '/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDABALDA4MChAODQ4SERATGCgaGBYWGDEjJR0oOjM9PDkzODdASFxOQERXRTc4UG1RV19iZ2hnPk1xeXBkeFxlZ2P/wAALCAABAAEBAREA/8QAFAABAAAAAAAAAAAAAAAAAAAAB//EABQQAQAAAAAAAAAAAAAAAAAAAAD/2gAIAQEAAD8AP3//2Q=='
+      nb_bytes: 160
+    gif:
+      data: 'R0lGODlhAQABAPABAAAAAP///yH5BAAAAAAAIf8LSW1hZ2VNYWdpY2sOZ2FtbWE9MC40NTQ1NDUALAAAAAABAAEAAAICRAEAOw=='
+      nb_bytes: 73
+    pdf:
+      data: 'JVBERi0xLjQKJYCAgIAKMSAwIG9iago8PC9QYWdlcyAyIDAgUiAvVHlwZSAvQ2F0YWxvZyA+PgplbmRvYmoKMiAwIG9iago8PC9UeXBlIC9QYWdlcyAvQ291bnQgMCAvUmVzb3VyY2VzIDMgMCBSIC9LaWRzIFtdIC9NZWRpYUJveCBbMCAwIDU5NiA4NDIgXSA+PgplbmRvYmoKMyAwIG9iago8PD4+CmVuZG9iago0IDAgb2JqCjw8L0NyZWF0aW9uRGF0ZSAoRDoyMDE1MDkyMzA2MTk1MCswMCcwMCcpIC9Qcm9kdWNlciAoUERGIENsb3duIGZvciBKYXZhIDAuMS4yKSAvTW9kRGF0ZSAoRDoyMDE1MDkyMzA2MTk1MCswMCcwMCcpIC9DcmVhdG9yIChzbWFsbHBkZi5jb20pID4+CmVuZG9iagp4cmVmCjAgNQowMDAwMDAwMDAwIDY1NTM1IGYNCjAwMDAwMDAwMTUgMDAwMDAgbg0KMDAwMDAwMDA2MyAwMDAwMCBuDQowMDAwMDAwMTU2IDAwMDAwIG4NCjAwMDAwMDAxNzYgMDAwMDAgbg0KdHJhaWxlcgo8PC9Sb290IDEgMCBSIC9TaXplIDUgL0lEIFs8MDg4NjVkOTBiN2ViZGQwYjM2MDMwODEwNjY0YTMzMzM+IDwwODg2NWQ5MGI3ZWJkZDBiMzYwMzA4MTA2NjRhMzMzMz4gXSAvSW5mbyA0IDAgUiA+PgpzdGFydHhyZWYKMzMyCiUlRU9GDQo='
+      nb_bytes: 584
+    wav:
+      data: 'UklGRjgAAABXQVZFZm10IBAAAAABAAIARKwAABCxAgAEABAAZGF0YRQAAADHpwe2paantOykJLOuo0WygKUntA=='
+      nb_bytes: 64
+    mp3:
+      data: '/+MYxAAMiAK5UAgAAGv5QBDBABg+D4PvBAEAQBABg+D4P//////36/+jhgHwfB8HwICAIAgCAPg+D9Hv6Pf0KttttbbiCgoK/+MYxAgMyAMGQAAAAwwUFBQUCgoKCgwUFBQUCgoKCkgoKCgqKCgoKSCgoKCooKCgpIKCgoKigoLVTEFNRTMuOTkuNVVVVVVV/+MYxA8AAANIAAAAAFVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV'
+      nb_bytes: 216
+
+### HELPERS ###
+helpers:
+  asset:
+    valid_extensions: ['png', 'jpg', 'jpeg', 'gif', 'pdf']
+
+  audio:
+    valid_extensions: ['wav', 'mp3']
+
+  campaign:
+    default_expected_values:
+      status: 'DISABLED'
+      donotcontact: 'a:0:{}'
+      donotcontactdestination: 6
+      noreport: 'on'
+      ordered: 'off'
+      rateplanid: 4
+      region: 'AU'
+      sendrate: ''
+      proofversion: 0
+      sftpreport: 'off'
+      filedelimiter: 0
+    default_expected_type_values:
+      phone:
+        maxchannels: '5'
+        voicedid: '101'
+        redialtimeout: '60'
+        ringtime: '25'
+        ringoutlimit: '1'
+        retrylimit: '1'
+        voicesupplier: '0'
+      wash:
+        maxchannels: '150'
+        donotcontact: 'a:1:{i:0;i:152;}'
+        donotcontactdestination: '152'
+        voicesupplier: '0'
+      sms: []
+      email: []
+    call_results_map:
+      dnc:
+        values: [DNC]
+      sent:
+        types: [sms, email]
+        values: [SENT]
+        responses_data:
+          email: [['SENT', '<?= date("Y-m-d H:i:s"); ?>']]
+          sms: [['SENT', '<?= date("Y-m-d H:i:s"); ?>']]
+      generated:
+        types: [phone, wash]
+        values: [GENERATED]
+        responses_data:
+          wash: [['status', 'CONNECTED']]
+      answer:
+        types: [phone, wash]
+        values: [GENERATED, ANSWER]
+        responses_data:
+          wash: [['status', 'CONNECTED']]
+      no_answer:
+        types: [phone, wash]
+        values: [GENERATED, NOANSWER]
+        responses_data:
+          wash: [['status', 'CONNECTED']]
+      cancel:
+        types: [phone, wash]
+        values: [GENERATED, CANCEL]
+      disconnected:
+        types: [phone, wash]
+        values: [GENERATED, DISCONNECTED]
+        responses_data:
+          wash: [['status', 'DISCONNECTED']]
+      congestion:
+        types: [phone, wash]
+        values: [GENERATED, CONGESTION]
+      busy:
+        types: [phone, wash]
+        values: [GENERATED, BUSY]
+      chanunavail:
+        types: [phone, wash]
+        values: [GENERATED, CHANUNAVAIL]
+      hangup:
+        types: [phone, wash]
+        values: [GENERATED, ANSWER, HANGUP]
+        responses_data:
+          wash: [['status', 'CONNECTED']]
+
+  user:
+    default_admin_id: 2
+    default_expected_values:
+      status: '-1'
+      apirequest.post.limit: '60'
+      apirequest.get.limit: '60'
+      jobpriority: 'normal'
+      timezone: 'Australia/Brisbane'
+      autherrors: '0'
+      passwordresetcount: '0'
+      apirateplan: 4
+
+  group:
+    default_admin_id: 2
+    default_expected_values: []
+
+  rateplans:
+    default_rateplan_id: 4
+
+  voiceserver:
+    default_expected_values:
+      status: 'disabled'
+
+  voicesupplier:
+    default_expected_values:
+      status: 'DISABLED'
+
+  smssupplier:
+    default_expected_values:
+      status: 'DISABLED'
+      smspersecond: 2
+      capabilities: 'a:0:{}'
+
+  hlrsupplier:
+    default_expected_values:
+      status: 'DISABLED'
+      hlrpersecond: 2
+      counter: 0
+      capabilities: 'a:0:{}'
+
+  cron:
+    default_expected_values:
+      dayofmonth: '*'
+      dayofweek: '*'
+      hour: '*'
+      minute: '*'
+      month: '*'
+      scriptname: ''
+      timezone: 'Australia/Brisbane'
+      description: ''
+      lastrun: ''
+      status: 'DISABLED'

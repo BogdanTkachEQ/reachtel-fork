@@ -1,0 +1,37 @@
+Models\Entities\TimingPeriod:
+    type: entity
+    table: timing_periods
+    id:
+        id:
+            type: integer
+            nullable: false
+            unsigned: true
+            id: true
+            column: id
+            generator:
+                strategy: AUTO
+
+    manyToOne:
+        timingGroup:
+            targetEntity: Models\Entities\TimingGroup
+            joinColumn:
+                name: timing_group_id
+                referencedColumnName: id
+
+    fields:
+        day:
+            type: enumtypedaynumber
+            nullable: false
+            column: day_number
+
+        start:
+            type: time
+            nullable: false
+            column: start
+
+        end:
+              type: time
+              nullable: false
+              column: end
+
+    lifecycleCallbacks: {  }

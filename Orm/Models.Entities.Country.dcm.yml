@@ -1,0 +1,38 @@
+Models\Entities\Country:
+    repositoryClass: Services\Repository\CountryRepository
+    type: entity
+    table: countries
+    id:
+        id:
+            type: integer
+            nullable: false
+            unsigned: true
+            id: true
+            column: id
+            generator:
+                strategy: AUTO
+
+    oneToMany:
+        regions:
+            targetEntity: Models\Entities\Region
+            mappedBy: country
+
+
+    fields:
+        name:
+            type: string
+            nullable: false
+            length: 30
+            fixed: false
+            comment: ''
+            column: name
+
+        shortName:
+            type: string
+            nullable: false
+            length: 5
+            fixed: false
+            comment: ''
+            column: short_name
+
+    lifecycleCallbacks: {  }
